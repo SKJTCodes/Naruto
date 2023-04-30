@@ -26,13 +26,9 @@ class Naruto(pygame.sprite.Sprite):
     def _user_input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RIGHT]:
-            self.rect.bottom = 925
-            self.direction_right = True
             self._run(speed=5)
         elif keys[pygame.K_LEFT]:
-            self.rect.bottom = 925
-            self.direction_right = False
-            self._run(speed=5)
+            self._run(speed=5, right=False)
         else:
             self.rect.bottom = 905
             self._idle()
@@ -53,7 +49,10 @@ class Naruto(pygame.sprite.Sprite):
 
         return images
 
-    def _run(self, speed=3):
+    def _run(self, speed=3, right=True):
+        self.direction_right = right
+        self.rect.bottom = 925
+
         if self.direction_right:
             self.rect.right += speed
         else:
