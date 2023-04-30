@@ -27,23 +27,17 @@ class Naruto(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_RIGHT]:
             self.rect.bottom = 925
-            self._run()
+            self.direction_right = True
+            self._run(speed=5)
+        elif keys[pygame.K_LEFT]:
+            self.rect.bottom = 925
+            self.direction_right = False
+            self._run(speed=5)
         else:
             self.rect.bottom = 905
             self._idle()
 
-        # if keys[pygame.K_RIGHT]:
-        #     self.direction_right = True
-        #     self.rect.bottom = 915
-        #     self._run()
-        # elif keys[pygame.K_LEFT]:
-        #     self.direction_right = False
-        #     self._run()
-        #     self.rect.bottom = 915
-        # else:
-        #     self.rect.bottom = 905
-
-    def _get_frames(self, action, flip=True):
+    def _get_frames(self, action):
         """
         all same width and height = (max_width, max_height)
         y = the lowest y
@@ -57,45 +51,29 @@ class Naruto(pygame.sprite.Sprite):
             image.set_colorkey(self.BG_COLOR)
             images.append(image)
 
-        # Get for other direction
-        if flip:
-            tmp_images = images.copy()
-            for image in tmp_images:
-                image = pygame.transform.flip(image, True, False).convert_alpha()
-                image = pygame.transform.scale2x(image)
-                image.set_colorkey(self.BG_COLOR)
-                images.append(image)
         return images
 
     def _run(self, speed=3):
-        self.rect.right += speed
-        self.frames = self._get_frames('run', flip=True)
+        if self.direction_right:
+            self.rect.right += speed
+        else:
+            self.rect.left -= speed
+
+        self.frames = self._get_frames('run')
         self._run_animation(speed=0.05)
-        # if self.direction_right:
-        #     if self.rect.right > 1920:
-        #         self.rect.right = 1920
-        #     self._run_animation()
-        #     self.rect.right += speed
-        # else:
-        #     if self.rect.left <= 0:
-        #         self.rect.left = 0
-        #     self._run_animation()
-        #     self.rect.left -= speed
 
     def _run_animation(self, speed=0.1):
         self.frame_num += speed
-        if self.frame_num >= len(self.frames) / 2:
-            self.frame_num = 0 if self.direction_right else len(self.frames) / 2
 
-        self.image = self.frames[int(self.frame_num)]
-        # if self.frame_num >= len(self.frames['run']):
-        #     self.frame_num = 0
-        #
-        # if self.direction_right:
-        #     self.image = self.frames['run'][int(self.frame_num)]
-        # else:
-        #     self.image = pygame.transform.flip(self.frames['run'][int(self.frame_num)], True, False)
-        #     self.image.set_colorkey(self.BG_COLOR)
+        if self.frame_num >= len(self.frames):
+            self.frame_num = 0
+
+        image = self.frames[int(self.frame_num)]
+        if not self.direction_right:
+            image = pygame.transform.flip(self.frames[int(self.frame_num)], True, False).convert_alpha()
+            image.set_colorkey(self.BG_COLOR)
+
+        self.image = image
 
     def _idle(self):
         self.frames = self._get_frames('stance')
@@ -105,6 +83,12 @@ class Naruto(pygame.sprite.Sprite):
         self.frame_num += speed
 
         # restart animation from frame 1 if reach end
-        if self.frame_num >= len(self.frames) / 2:
-            self.frame_num = 0 if self.direction_right else len(self.frames) / 2
-        self.image = self.frames[int(self.frame_num)]
+        if self.frame_num >= len(self.frames):
+            self.frame_num = 0
+
+        image = self.frames[int(self.frame_num)]
+        if not self.direction_right:
+            image = pygame.transform.flip(self.frames[int(self.frame_num)], True, False).convert_alpha()
+            image.set_colorkey(self.BG_COLOR)
+
+        self.image = image
